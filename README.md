@@ -1,98 +1,185 @@
-# EUR/USD Hourly Signal Bot (Windows Standalone EXE)
+# EUR/USD Hourly Signal Bot - Standalone EXE for Windows
 
-## Overview
-A simple, portable standalone bot that analyzes EUR/USD hourly candlesticks from Yahoo Finance and outputs BUY/SELL/HOLD signals to the console every hour.
+## Quick Start (No Python Installation Needed!)
 
-**No Python installation required** — everything is bundled into a single `.exe` file.
+### Option 1: One-Click Build
+1. Download this project as ZIP
+2. Extract to a folder
+3. **Double-click `install_and_build.bat`**
+4. Wait for it to finish (~5-10 minutes, first time only)
+5. Your EXE will be in the `dist` folder
+6. Run `dist/eurusd_bot.exe` anytime
 
-## Features
-- **Data Source**: Yahoo Finance (`EURUSD=X`)
-- **Timeframe**: 1-hour candlesticks
-- **Indicators**:
-  - SMA(20) and SMA(50) — trend confirmation
-  - RSI(14) — momentum confirmation
-  - MACD — trend strength and direction
-- **Signal Types**:
-  - 🟢 **BUY** — bullish conditions aligned
-  - 🔴 **SELL** — bearish conditions aligned
-  - 🟡 **HOLD** — no clear signal
-- **Automation**: Checks automatically every hour
-- **Output**: Real-time console output with all indicator values
+### Option 2: If You Already Have Python 3.10+
+1. Open Command Prompt in this folder
+2. Run: `python install_and_build.bat`
+3. Done! Your EXE is in `dist` folder
 
-## Download & Run (Windows 11)
+---
 
-### Option 1: Ready-Made EXE (If Available)
-Just download `eurusd_signal_bot.exe` and double-click it.
+## What It Does
 
-### Option 2: Build Your Own EXE
-1. Install Python 3.10+ from [python.org](https://www.python.org/)
-2. Download this repo as a ZIP or clone it
-3. Extract to a folder
-4. Double-click `build_console.bat`
-5. Wait for the build to complete (~5-10 minutes)
-6. Your EXE will be in the `dist` folder
+The bot:
+- Downloads the latest 200 hours of EUR/USD candlestick data from Yahoo Finance
+- Calculates technical indicators (SMA, RSI, MACD)
+- Generates BUY/SELL/HOLD signals
+- Outputs signals to the console **every hour**
+- Runs 24/7 (keep the console window open)
 
-## Usage
+---
+
+## Running the Bot
+
+After building, just run the EXE:
 ```bash
-dist/main.exe
+dist/eurusd_bot.exe
 ```
 
-The bot will:
-1. Fetch the latest 200 hours of EUR/USD data
-2. Calculate indicators
-3. Output the first signal immediately
-4. Wait for the next hour and repeat
+Or use the launcher batch:
+```bash
+run_bot.bat
+```
 
-**Keep the console window open** for continuous operation.
+---
 
-## Strategy Rules
+## Technical Indicators
 
-### BUY Signal
-- Price > SMA(20) > SMA(50) (uptrend)
+**Trend:**
+- SMA(20) - Short-term trend
+- SMA(50) - Medium-term trend
+- Price position relative to both
+
+**Momentum:**
+- RSI(14) - Overbought/Oversold levels
+- MACD - Momentum and trend changes
+
+---
+
+## Signal Rules
+
+### BUY Signal ✅
+- Price > SMA(20) > SMA(50) (uptrend confirmed)
 - RSI > 52 (momentum strength)
-- MACD > Signal Line (positive momentum)
+- MACD > Signal Line (bullish momentum)
 
-### SELL Signal
-- Price < SMA(20) < SMA(50) (downtrend)
+### SELL Signal ❌
+- Price < SMA(20) < SMA(50) (downtrend confirmed)
 - RSI < 48 (momentum weakness)
-- MACD < Signal Line (negative momentum)
+- MACD < Signal Line (bearish momentum)
 
-### HOLD
-- None of the above conditions are met
+### HOLD Signal ⏸️
+- None of the above conditions align
+- Waiting for clearer signal
 
-## Files
-- `main.py` — Main bot logic
-- `strategy.py` — Signal calculation and indicators
-- `requirements.txt` — Python dependencies
-- `build_console.bat` — Build script for standalone EXE
-- `README.md` — This file
+---
+
+## Files Included
+
+```
+.
+├── install_and_build.bat     ← Run this first to build EXE
+├── run_bot.bat               ← Run this to start the bot
+├── main.py                   ← Bot core logic
+├── strategy.py               ← Signal calculation
+├── requirements.txt          ← Dependencies list
+└── README.md                 ← This file
+```
+
+---
 
 ## System Requirements
-- Windows 11 (Windows 10 also supported)
-- Internet connection (for live data from Yahoo Finance)
-- ~200 MB disk space (for the EXE + dependencies)
-- ~100 MB RAM while running
+
+- **Windows 10/11** (64-bit)
+- **Internet connection** (for live data)
+- **~300 MB free disk space** (for bundled Python + dependencies)
+- **~100 MB RAM** while running
+
+---
+
+## First Run
+
+1. Run `install_and_build.bat`
+   - If Python is not installed, it will download portable Python 3.11
+   - All dependencies are installed automatically
+   - PyInstaller bundles everything into one EXE
+   - Takes 5-10 minutes the first time
+
+2. Find your EXE in: `dist/eurusd_bot.exe`
+
+3. Run it (no Python needed after this!)
+
+---
+
+## Output Example
+
+```
+[2026-10-04 12:00:00 UTC] Fetching EUR/USD data...
+
+============================================================================
+[2026-10-04 12:05:30 UTC] EUR/USD HOURLY SIGNAL
+============================================================================
+Price:             1.08543
+Previous Close:    1.08521
+SMA(20):           1.08421
+SMA(50):           1.08312
+RSI(14):           58.45
+MACD:              0.000234
+MACD Signal:       0.000198
+MACD Histogram:    0.000036
+----------------------------------------------------------------------------
+Signal: [BUY]
+Reason: Bullish alignment: Price > SMA20 > SMA50, RSI > 52, MACD positive crossover
+============================================================================
+
+Next check scheduled for: 2026-10-04 13:00:00 UTC
+Bot is running...
+```
+
+---
 
 ## Troubleshooting
 
-### "No data available" error
-- Check your internet connection
-- Yahoo Finance may be rate-limiting — wait 5 minutes and try again
+### "Python not found" error
+- Run `install_and_build.bat` again
+- The script will download portable Python automatically
 
-### EXE won't start
-- Try running from Command Prompt to see error details:
-  ```bash
-  cd dist
-  main.exe
-  ```
+### "No data available" message
+- Check your internet connection
+- Yahoo Finance may be rate-limiting (wait 5 min and try again)
 
 ### Build fails
-- Make sure Python is installed and added to PATH
-- Run Command Prompt as Administrator
-- Delete the `build` and `dist` folders before rebuilding
+- Delete `build` and `dist` folders
+- Run `install_and_build.bat` again
+- Try running as Administrator
+
+### EXE crashes immediately
+- Open Command Prompt
+- Navigate to the `dist` folder
+- Run: `eurusd_bot.exe` to see error details
+
+---
+
+## Customization
+
+Edit `strategy.py` to change:
+- RSI threshold (line with `rsi > 52`)
+- SMA periods (20 and 50)
+- MACD parameters
+- Signal logic
+
+After editing, run `install_and_build.bat` again to rebuild the EXE.
+
+---
 
 ## Disclaimer
-This is an educational tool. It is NOT financial advice. Trading carries risk. Test thoroughly before using real money.
+
+⚠️ **This is an educational tool. NOT financial advice.**
+
+Forex trading carries significant risk. Past performance is not indicative of future results.
+Test strategies thoroughly with virtual money before risking real capital.
+
+---
 
 ## License
-Free to use and modify.
+
+Free to use and modify. No warranty.

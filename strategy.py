@@ -26,28 +26,33 @@ def calculate_macd(series: pd.Series):
     return macd, signal, hist
 
 def prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """Prepare dataframe with indicators."""
+    """Prepare dataframe with technical indicators."""
     if df.empty:
-        raise ValueError("No market data received.")
+        raise ValueError("No market data received from Yahoo Finance.")
 
     cleaned = df.copy()
     cleaned.columns = [col.strip() for col in cleaned.columns]
 
     if "Close" not in cleaned.columns:
-        raise KeyError("The downloaded data does not contain a 'Close' column.")
+        raise KeyError("Close price data not found.")
 
+    # Calculate moving averages
     cleaned["SMA_20"] = cleaned["Close"].rolling(window=20).mean()
     cleaned["SMA_50"] = cleaned["Close"].rolling(window=50).mean()
+    
+    # Calculate momentum indicators
     cleaned["RSI_14"] = calculate_rsi(cleaned["Close"], period=14)
     cleaned["MACD"], cleaned["MACD_SIGNAL"], cleaned["MACD_HIST"] = calculate_macd(cleaned["Close"])
+    
     return cleaned
 
 def get_signal(df: pd.DataFrame):
-    """Generate trading signal based on indicators."""
+    """Generate trading signal based on technical analysis."""
     prepared = prepare_dataframe(df)
     last = prepared.iloc[-1]
     prev = prepared.iloc[-2] if len(prepared) > 1 else last
 
+    # Extract latest values
     price = float(last["Close"])
     sma_20 = float(last["SMA_20"])
     sma_50 = float(last["SMA_50"])
@@ -56,23 +61,24 @@ def get_signal(df: pd.DataFrame):
     macd_signal = float(last["MACD_SIGNAL"])
     macd_hist = float(last["MACD_HIST"])
 
-    # Trend conditions
+    # Trend analysis
     bullish_trend = price > sma_20 > sma_50
     bearish_trend = price < sma_20 < sma_50
     bullish_momentum = macd > macd_signal and macd_hist > 0
     bearish_momentum = macd < macd_signal and macd_hist < 0
 
-    # Signal generation
+    # Signal generation logic
     if bullish_trend and rsi > 52 and bullish_momentum:
         signal = "BUY"
-        reason = "Bullish trend (price > SMA20 > SMA50), RSI strength, MACD positive."
+        reason = "Bullish alignment: Price > SMA20 > SMA50, RSI > 52, MACD positive crossover"
     elif bearish_trend and rsi < 48 and bearish_momentum:
         signal = "SELL"
-        reason = "Bearish trend (price < SMA20 < SMA50), RSI weakness, MACD negative."
+        reason = "Bearish alignment: Price < SMA20 < SMA50, RSI < 48, MACD negative crossover"
     else:
         signal = "HOLD"
-        reason = "No clear alignment. Waiting for stronger conditions."
+        reason = "No clear signal. Waiting for stronger confluence of indicators."
 
+    # Prepare summary
     summary = {
         "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S %Z"),
         "price": round(price, 5),
